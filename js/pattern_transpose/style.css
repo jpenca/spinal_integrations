@@ -1,19 +1,46 @@
 .button {
-	background-color: #F9; 
-	padding: 16px;
+	background-color: #0074D9; 
+	/*padding: 16px;*/
     border: #4CAF50;
     color: white;
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 12px;
+    width: 32px;
+    margin: 2px;
 
-    -webkit-transition-duration: 0.4s; /* Safari */
-    transition-duration: 0.4s;
+    -webkit-transition-duration: 0.2s; /* Safari */
+    transition-duration: 0.2s;
     cursor: pointer;
+    border-radius: 4px;
 }
 
 .button:hover {
-    background-color: #4CAF50; /* Green */
+    background-color: #F012BE;
     color: white;
+}
+
+.transpose {
+	max-width: 288px;
+	padding: 4px;
+	margin: auto;
+	align-items: center;
+	background-color: white;
+	border-radius: 4px;
+	box-shadow: 10px 10px 10px #888888;
+}
+
+h1 {
+	/*font-family: Helvetica;*/
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-size: 16px;
+	font-weight: 800;
+	text-align: center;
+	color: #0074D9;
+}
+
+body {
+	align-content: center;
+	background-color: #AAAAAA;
 }
