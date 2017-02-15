@@ -1,0 +1,19 @@
+.button {
+	background-color: #F9; 
+	padding: 16px;
+    border: #4CAF50;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #4CAF50; /* Green */
+    color: white;
+}
