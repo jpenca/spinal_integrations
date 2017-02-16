@@ -37,18 +37,11 @@ document.body.onload = () => {
 
 	btn.onclick = () => {
 
-		// make a new spinal helper object.
-		// this object just makes it simple to GET/POST with the spinal app.
-		// it has a field 'baseURL', and uses localhost:5000 as the default address.
-		// change 'baseURL' if you're running the spinal app on a different host/port!
-
-		let s = new Spinal()
-		// s.baseURL = 192.168.1.123:12345 --- some other computer!
 
 		// get the current kit from your rytm.
 
-		s.get('kit.x')
-				.then(r => {
+		spinal.get('kit.x')
+					.then(r => {
 
 						console.log(r)
 
@@ -63,10 +56,10 @@ document.body.onload = () => {
 						console.log('renamed kit')
 
 						// and send it back to the spinal app!
-						s.post(kit).then(r => {
+						spinal.post(kit).then(r => {
 							console.log('success!')
 						}).then(() => getSingleDemo(s))
 
-				}).then(() => console.log('sent kit back to rytm'))
+					}).then(() => console.log('sent kit back to rytm'))
 	}
 }

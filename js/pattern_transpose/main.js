@@ -1,26 +1,25 @@
 
-window.onload = () => {
+window.addEventListener('load', () => {
 
 	console.clear()
 	console.log('doc loaded')
 
-	var trasnposeContainer = document.createElement('section')
-		trasnposeContainer.classList.add('transpose')
+	var container = document.createElement('section')
+		container.classList.add('boxthing')
 	
-	document.body.appendChild(trasnposeContainer)
+	document.body.appendChild(container)
 	let title = document.createElement('h1')
 	title.innerHTML = 'Transpose Current Pattern'
-	trasnposeContainer.appendChild(title)
-
+	container.appendChild(title)
 
 	for(var i = 12; i >= -12; i--) {
 		
 		if(i == 0)
 			continue
 
-		addBtn(trasnposeContainer, i);
+		addBtn(container, i);
 	}
-}
+})
 
 function addBtn(parent, note) {
 	console.log('adding button for note: ' + note);
@@ -32,13 +31,12 @@ function addBtn(parent, note) {
 
 	btn.onclick = () => {
 		transpose(btn, note);
-	}
-	
+	}	
 }
 
-let s = new Spinal();
+// let spinal = new Spinal();
 
-function foldNoteValue(note) {
+function fold(note) {
 	
 	while(note < 60-24) {
 		note += 12
@@ -53,17 +51,17 @@ function foldNoteValue(note) {
 function transpose(btn, note) {
 
 	console.log('transposing ' + note)
-	s.getPattern().then(pattern => {
+	spinal.getPattern().then(pattern => {
 		pattern.tracks.forEach((track, tIndex) => {
-			track.settings.trig.note = foldNoteValue(track.settings.trig.note + note)
+			track.settings.trig.note = fold(track.settings.trig.note + note)
 			track.steps.forEach((step, sIndex) => {
 				if(step.note != null) {
-					step.note = foldNoteValue(step.note + note)
+					step.note = fold(step.note + note)
 				}
 			})
 		})
 
-		s.post(pattern).then(result => {
+		spinal.post(pattern).then(result => {
 			console.log('done!')
 		})
 	})

@@ -21,14 +21,33 @@
     color: white;
 }
 
-.transpose {
-	max-width: 288px;
+.boxthing{
+	/*position: absolute;*/
+	width: 288px;
 	padding: 4px;
-	margin: auto;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	margin-left: auto;
+	margin-right: auto;
 	align-items: center;
 	background-color: white;
 	border-radius: 4px;
 	box-shadow: 10px 10px 10px #888888;
+}
+
+span {
+	color: #0074D9;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-size: 12px;
+	font-weight: 800;
+}
+
+.textinput {
+	border: none; /* <-- This thing here */
+    border:solid 1px #ccc;
+    border-radius: 4px;
+    color: gray;
+    height: 20px;
 }
 
 h1 {
