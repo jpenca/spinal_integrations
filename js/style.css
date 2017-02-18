@@ -59,7 +59,18 @@ h1 {
 	color: #0074D9;
 }
 
+label {
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-size: 14px;
+}
+
 body {
 	align-content: center;
 	background-color: #AAAAAA;
+}
+
+canvas {
+	border-radius: 4px;
+	box-shadow: 10px 10px 10px #888888;
+	display: flex;
 }
