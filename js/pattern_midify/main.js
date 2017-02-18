@@ -1,207 +1,199 @@
 
-var pattern;
-var canvasHeight = 200;
-var canvasWidth;
 var params;
-var events;
-var autorefresh;
-var timer;
 
-var p = localStorage.getItem('params');
-spinal.getParams().then(p => {
-	params = p;
-	localStorage.setItem('params', params)
-});
+var p5drawTrack = p => {
 
-
-function setup() {
-
-	canvasWidth = windowWidth-20;
-	canvas = createCanvas(canvasWidth, canvasHeight)
-	rectMode(CORNERS)
+	var pattern;
+	var canvasHeight = 200;
+	var canvasWidth;
 	
-	var chk = document.getElementById("autorefresh");
-	chk.onclick = () => {
-		if(chk.checked)
-			timer = setInterval(fetch, 250);
-		else
-			clearInterval(timer);		
+	var events;
+	var timer;
+
+	spinal.getParams().then(p => {
+		params = p;
+	});
+
+	p.setup = () => {
+
+		canvasWidth = p.windowWidth-20;
+		canvas = p.createCanvas(canvasWidth, canvasHeight)
+		p.rectMode(p.CORNERS)
+	
+		var chk = document.getElementById("autorefresh");
+		chk.onclick = () => {
+			if(chk.checked)
+				timer = setInterval(p.fetch, 250);
+			else
+				clearInterval(timer);
+		}
 	}
-}
 
-function windowResized() {
-	canvasWidth = windowWidth-20;
-	resizeCanvas(canvasWidth, canvasHeight)
-}
-
-function draw() {
-	background(255)
-	drawPattern()
-	drawEvents()
-	noLoop()
-}
-
-function drawEvents() {
-	if(events == null)
-		return;
-
-	var even = true;
 	
-	textSize(10);
-	var i = 0;
+	p.windowResized = () => {
+		canvasWidth = p.windowWidth-20;
+		p.resizeCanvas(canvasWidth, canvasHeight)
+	}
 
-	events.forEach(event => {
+	
+	p.draw = () => {
+		p.background(255)
+		p.drawPattern()
+		p.drawEvents()
+		p.noLoop()
+	}
 
-		var y = canvasHeight/2 + 32;
-		if(even) y += 32;
+	p.mousePressed = () => {
+		p.fetch();
+	}
 
-		fill(200, 255, 150)
+	p.fetch = () => {
+		p.loop()
+
+		spinal.getPattern().then(pat => { 
+			pattern = pat;
+			events = SpinalPatternCreateEvents(pattern, 0)
+			// console.log(events);
+			p.loop()
+		})
+	}
+
+	p.drawEvents = () => {
 		
-		var xStart = map(event.start, 0, events.patternLength-1, 40, canvasWidth-40);
-		var xStop = map(event.stop, 0, events.patternLength-1, 40, canvasWidth-40);
-		rect(
-			xStart,
-			y,
-			xStop,
-			y+16,
-			2);
+		if(events == null)
+			return;
 
-		noStroke();
-		fill(255);
-		text(`v${event.velocity} n${event.note}`, xStart+2, y+13)
+		var even = true;
+	
+		p.textSize(10);
+		var i = 0;
+
+		events.forEach(event => {
+
+			var y = canvasHeight/2 + 32;
+			if(even) y += 32;
+
+			p.fill(200, 255, 150)
 		
-		even = !even
+			var xStart = p.map(event.start, 0, events.patternLength, 40, canvasWidth-40);
+			var xStop = p.map(event.stop, 0, events.patternLength, 40, canvasWidth-40);
+			p.rect(
+				xStart,
+				y,
+				xStop,
+				y+16,
+				2);
 
-		i++;
-	})
-}
-
-function drawPattern() {
-	if(pattern == null)
-		return;
-
-	noStroke()
-	fill(100)
-	ellipse(8, 8, 3, 3)
-	colorMode(HSB, 255);
-
-	var len = pattern.tracks[0].settings.length;
-	if(!pattern.settings.advanced)
-		len = pattern.settings.length;
-
-	var pattern_quantize = pattern.settings.quantize;
-	var track_quantize = pattern.tracks[0].settings.quantize;
-	var quantize = pattern_quantize;
-
-	if(track_quantize > quantize)
-		quantize = track_quantize;
-
-	var microMax = map(quantize, 0, 127, 1, 0);
-	var dia = 6;
-
-	for(var stepIndex = 0; stepIndex < len; stepIndex++) {
+			p.noStroke();
+			p.fill(255);
+			p.text(`v${event.velocity} n${event.note}`, xStart+2, y+13)
 		
-		var x = map(stepIndex, 0, len-1, 40, canvasWidth-40)
-		var y = canvasHeight/6
+			even = !even
 
-		strokeWeight(1);
-		stroke(0, 0, 200)
-		line(x, 10, x, canvasHeight/2+20);
+			i++;
+		})
+	}
 
-		var step = pattern.tracks[0].steps[stepIndex];
-		if(step.on) {
 
-			noStroke();
-			var hue = map(stepIndex, 0, len, 0, 255 * 4)
-			while(hue > 255)
-				hue -= 255;
+	p.drawPattern = () => {
+		if(pattern == null)
+			return;
 
-			fill(hue, 255, 255);
-			ellipse(x, y, dia, dia);
+		p.noStroke()
+		p.fill(100)
+		p.ellipse(8, 8, 3, 3)
+		p.colorMode(p.HSB, 255);
 
-			var pos = stepIndex;
+		var len = pattern.tracks[0].settings.length;
+		if(!pattern.settings.advanced)
+			len = pattern.settings.length;
 
-			if(step.microtiming != null) {
-				pos += map(step.microtiming, -24, 24, -1, 1) * microMax;
+		var pattern_quantize = pattern.settings.quantize;
+		var track_quantize = pattern.tracks[0].settings.quantize;
+		var quantize = pattern_quantize;
+
+		if(track_quantize > quantize)
+			quantize = track_quantize;
+
+		var microMax = p.map(quantize, 0, 127, 1, 0);
+		var dia = 6;
+
+		for(var stepIndex = 0; stepIndex < len; stepIndex++) {
+			
+			var x = p.map(stepIndex, 0, len, 40, canvasWidth-40)
+			var y = canvasHeight/6
+
+			p.strokeWeight(1);
+			p.stroke(0, 0, 200)
+			p.line(x, 20, x, canvasHeight/2+20);
+
+			p.noStroke();
+			p.fill(0,0,200)
+			p.text(stepIndex+1, x-4, 13)
+
+			var step = pattern.tracks[0].steps[stepIndex];
+			if(step.on) {
+
+				p.noStroke();
+				var hue = p.map(stepIndex, 0, len, 0, 255 * 4)
+				while(hue > 255)
+					hue -= 255;
+
+				p.fill(hue, 255, 255);
+				p.ellipse(x, y, dia, dia);
+
+				var pos = stepIndex;
+
+				if(step.microtiming != null) {
+					pos += p.map(step.microtiming, -24, 24, -1, 1) * microMax;
+				}
+
+				while(pos < 0)
+					pos += len;
+				while(pos > len)
+					pos -= len;
+
+				var shiftX = p.map(pos, 0, len, 40, canvasWidth-40);
+
+				p.stroke(hue, 255, 255);
+				p.strokeWeight(1);
+				p.line(x, y, shiftX, y+32);
+
+				p.noStroke();
+				// fill(100);
+				p.ellipse(shiftX, y+32, dia, dia);
+
+				y+=32;
+
+				var prevShiftX = shiftX;
+
+				if(step.swing) {
+					pos += p.map(pattern.settings.swing, 0, 50, 0, 1);
+				}
+
+				while(pos < 0)
+					pos += len;
+				while(pos > len)
+					pos -= len;
+
+				var shiftX = p.map(pos, 0, len, 40, canvasWidth-40);
+
+				p.stroke(hue, 255, 255);
+				p.strokeWeight(1);
+				p.line(prevShiftX, y, shiftX, y+32);
+
+				p.noStroke();
+				p.fill(hue, 255, 255);
+				p.ellipse(shiftX, y+32, dia, dia);
+
+				y+=32;
 			}
-
-			while(pos < 0)
-				pos += len;
-			while(pos > len)
-				pos -= len;
-
-			var shiftX = map(pos, 0, len-1, 40, canvasWidth-40);
-
-			stroke(hue, 255, 255);
-			strokeWeight(1);
-			line(x, y, shiftX, y+32);
-
-			noStroke();
-			// fill(100);
-			ellipse(shiftX, y+32, dia, dia);
-
-			y+=32;
-
-			var prevShiftX = shiftX;
-
-			if(step.swing) {
-				pos += map(pattern.settings.swing, 0, 50, 0, 1);
-			}
-
-			while(pos < 0)
-				pos += len;
-			while(pos > len)
-				pos -= len;
-
-			var shiftX = map(pos, 0, len-1, 40, canvasWidth-40);
-
-			stroke(hue, 255, 255);
-			strokeWeight(1);
-			line(prevShiftX, y, shiftX, y+32);
-
-			noStroke();
-			fill(hue, 255, 255);
-			ellipse(shiftX, y+32, dia, dia);
-
-			y+=32;
 		}
 	}
 }
 
-function mousePressed () {
-	fetch();
-}
 
-function fetch() {
-	loop()
-
-	spinal.getPattern().then(p => { 
-		pattern = p;
-		events = SpinalPatternCreateEvents(pattern, 0)
-		console.log(events);
-		loop()
-	})
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+new p5(p5drawTrack);
 
 
 
