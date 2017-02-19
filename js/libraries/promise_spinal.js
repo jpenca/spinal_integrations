@@ -63,7 +63,6 @@ function Spinal(baseURL) {
     };
 
     this.getSingle = function (key) {
-        console.log('getSingle key: ' + key);
         return new Promise(function (resolve, reject) {
             self.get(key).then(r => resolve(r[key]), r => reject(r));
         });
