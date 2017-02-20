@@ -1,3 +1,21 @@
+/*
+
+WHAT IS THIS
+
+just a small thing which creates a randomized pattern.
+it's setting p-locks for filter frequency among other things.
+meant to be used with a kit which has the same sounds on each track. 
+filter resonance is meant to be very high.
+
+use a built-in kit (JSON string at the bottom) as a template.
+
+result is very unpleasant.
+made this to annoy my neighbors.
+
+*/
+
+
+
 var params;
 var checkbox;
 
