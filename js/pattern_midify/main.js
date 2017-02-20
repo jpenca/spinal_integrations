@@ -1,201 +1,124 @@
 
 var params;
+var pattern;
+var patternEvents;
+var timer;
 
-var p5drawTrack = p => {
+spinal.getParams().then(p => {
+	params = p;
+});
 
-	var pattern;
-	var canvasHeight = 200;
-	var canvasWidth;
-	
-	var events;
-	var timer;
+var trackSketch
+var triggerSketch
 
-	spinal.getParams().then(p => {
-		params = p;
-	});
+window.addEventListener('load', () => {
 
-	p.setup = () => {
+	var div = document.getElementById('track');
+	trackSketch = new p5(p5drawTrack, div);
+	div = document.getElementById('trigg');
+	triggerSketch = new p5(p5drawTrigger, div);
 
-		canvasWidth = p.windowWidth-20;
-		canvas = p.createCanvas(canvasWidth, canvasHeight)
-		p.rectMode(p.CORNERS)
-	
-		var chk = document.getElementById("autorefresh");
-		chk.onclick = () => {
-			if(chk.checked)
-				timer = setInterval(p.fetch, 250);
-			else
-				clearInterval(timer);
+	var btn = document.getElementById('synthtoggle');
+	btn.onclick = () => {
+		if(btn.checked) {
+			startPlayback();
 		}
+		else
+			Tone.Transport.stop();
 	}
 
-	
-	p.windowResized = () => {
-		canvasWidth = p.windowWidth-20;
-		p.resizeCanvas(canvasWidth, canvasHeight)
+	var chk = document.getElementById("autorefresh");
+	chk.onclick = () => {
+		if(chk.checked)
+			timer = setInterval(main_fetch, 250);
+		else
+			clearInterval(timer);
 	}
+})
 
-	
-	p.draw = () => {
-		p.background(255)
-		p.drawPattern()
-		p.drawEvents()
-		p.noLoop()
-	}
+main_fetch = () => {
 
-	p.mousePressed = () => {
-		p.fetch();
-	}
+	spinal.getPattern().then(pat => { 
+		pattern = pat
+		patternEvents = []
+		
+		for(var i = 0; i < 13; i++) {
+			patternEvents.push(SpinalPatternCreateEvents(pattern, i))
+		}
 
-	p.fetch = () => {
-		p.loop()
+		trackSketch.loop()
+	})
+}
 
-		spinal.getPattern().then(pat => { 
-			pattern = pat;
-			events = SpinalPatternCreateEvents(pattern, 0)
-			// console.log(events);
-			p.loop()
+var parts = [];
+var synths = [];
+
+for(var i = 0; i < 13; i++) {
+	synths.push(new Tone.Synth().toMaster())	
+}
+
+function startPlayback() {
+
+	Tone.Transport.stop();
+
+	if(parts.length) {
+		parts.forEach(part => {
+			part.removeAll()
+			part.dispose()
 		})
 	}
 
-	p.drawEvents = () => {
+	parts = [];
+
+	if(!patternEvents.length)
+		return;
+
+	for(var i = 0; i < 13; i++) {
+		const part = new Tone.Part((time, event) => {
 		
-		if(events == null)
-			return;
+			synths[event.track].triggerAttackRelease(event.note, event.dur, time, map_number(event.velocity, 1, 127, .1, .5))
+			triggerSketch.trigger(event.track, event.velocity)
 
-		var even = true;
-	
-		p.textSize(10);
-		var i = 0;
+		}, convertSpinalEventsToToneEvents(patternEvents[i], i))
 
-		events.forEach(event => {
+		part.start(0)
+		part.loop = 7
+		part.loopEnd = '1m'
 
-			var y = canvasHeight/2 + 32;
-			if(even) y += 32;
-
-			p.fill(200, 255, 150)
-		
-			var xStart = p.map(event.start, 0, events.patternLength, 40, canvasWidth-40);
-			var xStop = p.map(event.stop, 0, events.patternLength, 40, canvasWidth-40);
-			p.rect(
-				xStart,
-				y,
-				xStop,
-				y+16,
-				2);
-
-			p.noStroke();
-			p.fill(255);
-			p.text(`v${event.velocity} n${event.note}`, xStart+2, y+13)
-		
-			even = !even
-
-			i++;
-		})
+		parts.push(part)
 	}
+	// Tone.Transport.bpm.value = 120;
+	Tone.Transport.start('+0.1');
+}
 
-
-	p.drawPattern = () => {
-		if(pattern == null)
-			return;
-
-		p.noStroke()
-		p.fill(100)
-		p.ellipse(8, 8, 3, 3)
-		p.colorMode(p.HSB, 255);
-
-		var len = pattern.tracks[0].settings.length;
-		if(!pattern.settings.advanced)
-			len = pattern.settings.length;
-
-		var pattern_quantize = pattern.settings.quantize;
-		var track_quantize = pattern.tracks[0].settings.quantize;
-		var quantize = pattern_quantize;
-
-		if(track_quantize > quantize)
-			quantize = track_quantize;
-
-		var microMax = p.map(quantize, 0, 127, 1, 0);
-		var dia = 6;
-
-		for(var stepIndex = 0; stepIndex < len; stepIndex++) {
-			
-			var x = p.map(stepIndex, 0, len, 40, canvasWidth-40)
-			var y = canvasHeight/6
-
-			p.strokeWeight(1);
-			p.stroke(0, 0, 200)
-			p.line(x, 20, x, canvasHeight/2+20);
-
-			p.noStroke();
-			p.fill(0,0,200)
-			p.text(stepIndex+1, x-4, 13)
-
-			var step = pattern.tracks[0].steps[stepIndex];
-			if(step.on) {
-
-				p.noStroke();
-				var hue = p.map(stepIndex, 0, len, 0, 255 * 4)
-				while(hue > 255)
-					hue -= 255;
-
-				p.fill(hue, 255, 255);
-				p.ellipse(x, y, dia, dia);
-
-				var pos = stepIndex;
-
-				if(step.microtiming != null) {
-					pos += p.map(step.microtiming, -24, 24, -1, 1) * microMax;
-				}
-
-				while(pos < 0)
-					pos += len;
-				while(pos > len)
-					pos -= len;
-
-				var shiftX = p.map(pos, 0, len, 40, canvasWidth-40);
-
-				p.stroke(hue, 255, 255);
-				p.strokeWeight(1);
-				p.line(x, y, shiftX, y+32);
-
-				p.noStroke();
-				// fill(100);
-				p.ellipse(shiftX, y+32, dia, dia);
-
-				y+=32;
-
-				var prevShiftX = shiftX;
-
-				if(step.swing) {
-					pos += p.map(pattern.settings.swing, 0, 50, 0, 1);
-				}
-
-				while(pos < 0)
-					pos += len;
-				while(pos > len)
-					pos -= len;
-
-				var shiftX = p.map(pos, 0, len, 40, canvasWidth-40);
-
-				p.stroke(hue, 255, 255);
-				p.strokeWeight(1);
-				p.line(prevShiftX, y, shiftX, y+32);
-
-				p.noStroke();
-				p.fill(hue, 255, 255);
-				p.ellipse(shiftX, y+32, dia, dia);
-
-				y+=32;
-			}
-		}
-	}
+function midiToPitch(midi) {
+	const scaleIndexToNote = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+	const octave = Math.floor(midi / 12) - 1;
+	const note = midi % 12;
+	return scaleIndexToNote[note] + octave;
 }
 
 
-new p5(p5drawTrack);
+function convertSpinalEventsToToneEvents(events, trk) {
 
+	if(!events.length)
+		return []
 
+	var out = []
+	events.forEach(e => {
+		out.push({
+
+			time: 		map_number(e.start, 0, 16, 0, 2),
+			note: 		midiToPitch(e.note),
+			dur: 	  	map_number(e.stop - e.start, 0, 16, 0, 2),
+			velocity: 	e.velocity,
+			track: 		trk
+
+		})
+	})
+
+	return out
+}
 
 
 

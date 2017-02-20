@@ -4,12 +4,12 @@ function map_number(n, start1, stop1, start2, stop2) {
 
 function SpinalPatternMapTime(pattern, trk) {
 	
-	var len = pattern.tracks[0].settings.length;
+	var len = pattern.tracks[trk].settings.length;
 	if(!pattern.settings.advanced)
 		len = pattern.settings.length;
 
 	var pattern_quantize = pattern.settings.quantize;
-	var track_quantize = pattern.tracks[0].settings.quantize;
+	var track_quantize = pattern.tracks[trk].settings.quantize;
 
 	var quantize = pattern_quantize;
 	if(track_quantize > quantize)
@@ -18,7 +18,7 @@ function SpinalPatternMapTime(pattern, trk) {
 	var timemap = [];
 
 	for(var stepIndex = 0; stepIndex < len; stepIndex++) {
-		var step = pattern.tracks[0].steps[stepIndex];
+		var step = pattern.tracks[trk].steps[stepIndex];
 		if(step.on) {
 			var pos = stepIndex;
 			if(step.microtiming != null) {
@@ -47,6 +47,9 @@ function SpinalPatternCreateEvents(pattern, trk) {
 
 	// console.log('creating events')
 	var tmap = SpinalPatternMapTime(pattern, trk);
+	if(!tmap.length)
+		return []
+		
 	// console.log('timemap: ', tmap);
 	var sorted_map = tmap.sort((a, b) => {
 		if(a.warped < b.warped)
@@ -61,13 +64,13 @@ function SpinalPatternCreateEvents(pattern, trk) {
 	});
 
 	var events = [];
-	var len = pattern.tracks[0].settings.length;
+	var len = pattern.tracks[trk].settings.length;
 	if(!pattern.settings.advanced)
 		len = pattern.settings.length;
 
-	var trackTrigLen = pattern.tracks[0].settings.trig.length;
-	var trackVelo = pattern.tracks[0].settings.trig.velocity;
-	var trackNote = pattern.tracks[0].settings.trig.note;
+	var trackTrigLen = pattern.tracks[trk].settings.trig.length;
+	var trackVelo = pattern.tracks[trk].settings.trig.velocity;
+	var trackNote = pattern.tracks[trk].settings.trig.note;
 
 	var lastEventStart = len;
 
