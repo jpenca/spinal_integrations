@@ -43,7 +43,24 @@ function SpinalPatternMapTime(pattern, trk) {
 	return timemap;
 }
 
-function SpinalPatternCreateEvents(pattern, trk) {
+function SpinalCreatePatternEvents(pattern, params) {
+	var trks = []		
+	for(var i = 0; i < 13; i++) {
+		trks.push(SpinalCreatePatternTrackEvents(pattern, i, params))
+	}
+	return trks;
+}
+
+function SpinalCreatePatternTrackEvents(pattern, trk, params) {
+
+	if(!params) {
+		console.log('this function needs params')
+		return []
+	}
+	if(!pattern)
+		return []
+	if(typeof trk !== 'number')
+		return []
 
 	// console.log('creating events')
 	var tmap = SpinalPatternMapTime(pattern, trk);
@@ -80,7 +97,10 @@ function SpinalPatternCreateEvents(pattern, trk) {
 		var trigless = false;
 		if(obj.step.synth == false && obj.step.sample == false)
 			trigless = true;
-		
+
+		if(obj.step.mute)
+			continue;
+
 		var velo = trackVelo;
 		if(obj.step.velocity != null)
 			velo = obj.step.velocity;
@@ -169,7 +189,7 @@ function SpinalPatternCreateEvents(pattern, trk) {
 			if(stop - obj.warped > 0.0001) {
 				events.push({
 					seqpos: 	obj.seqpos,
-					step:  		obj,
+					step:  		obj.step,
 					start: 		obj.warped,
 					stop:  		stop,
 					velocity: 	velo,

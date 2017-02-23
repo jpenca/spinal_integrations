@@ -1,6 +1,7 @@
 
 var params;
 var pattern;
+var settings;
 var patternEvents;
 var timer;
 
@@ -34,18 +35,22 @@ window.addEventListener('load', () => {
 		else
 			clearInterval(timer);
 	}
+
+	btn = document.getElementById("savemidi")
+	btn.onclick = () => {
+		saveMidiFile(pattern, patternEvents, settings.playback.tempo, "hello");
+	}
+
+	main_fetch()
 })
 
 main_fetch = () => {
 
-	spinal.getPattern().then(pat => { 
-		pattern = pat
-		patternEvents = []
-		
-		for(var i = 0; i < 13; i++) {
-			patternEvents.push(SpinalPatternCreateEvents(pattern, i))
-		}
-
+	spinal.get('pat.x,set.x').then(res => { 
+		pattern = res['pat.x']
+		settings = res['set.x']
+		console.log('pattern: ', pattern)
+		patternEvents = SpinalCreatePatternEvents(pattern, params)
 		trackSketch.loop()
 	})
 }
@@ -54,7 +59,8 @@ var parts = [];
 var synths = [];
 
 for(var i = 0; i < 13; i++) {
-	synths.push(new Tone.Synth().toMaster())	
+	var synth = new Tone.FMSynth().toMaster()
+	synths.push(synth)
 }
 
 function startPlayback() {
@@ -74,21 +80,27 @@ function startPlayback() {
 		return;
 
 	for(var i = 0; i < 13; i++) {
+
+		if(!settings.muted[i])
+			continue
+
 		const part = new Tone.Part((time, event) => {
-		
+			
 			synths[event.track].triggerAttackRelease(event.note, event.dur, time, map_number(event.velocity, 1, 127, .1, .5))
-			triggerSketch.trigger(event.track, event.velocity)
+			var future = time - Tone.now()
+			setTimeout(() => triggerSketch.trigger(event.track, event.velocity, event.dur), future * 1000)
 
 		}, convertSpinalEventsToToneEvents(patternEvents[i], i))
 
 		part.start(0)
-		part.loop = 7
-		part.loopEnd = '1m'
-
+		part.loop = 100000
+		part.loopEnd = pattern.settings.length / 8
 		parts.push(part)
 	}
-	// Tone.Transport.bpm.value = 120;
-	Tone.Transport.start('+0.1');
+
+	Tone.Transport.bpm.value = settings.playback.tempo;
+	console.log('tempo: ' + settings.playback.tempo)
+	Tone.Transport.start('+0.0');
 }
 
 function midiToPitch(midi) {
@@ -112,20 +124,13 @@ function convertSpinalEventsToToneEvents(events, trk) {
 			note: 		midiToPitch(e.note),
 			dur: 	  	map_number(e.stop - e.start, 0, 16, 0, 2),
 			velocity: 	e.velocity,
-			track: 		trk
+			track: 		trk,
 
 		})
 	})
 
 	return out
 }
-
-
-
-
-
-
-
 
 
 
