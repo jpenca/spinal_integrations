@@ -17,7 +17,6 @@ function saveMidiFile(pattern, patternEvents, tempo, name) {
 
 			var event = trackEvents[j];
 
-			console.log('pushing event:', event)
 			if(event.start < 0)
 				event.start = 0
 

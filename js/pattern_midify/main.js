@@ -36,8 +36,8 @@ window.addEventListener('load', () => {
 			clearInterval(timer);
 	}
 
-	btn = document.getElementById("savemidi")
-	btn.onclick = () => {
+	var savebtn = document.getElementById("savemidi")
+	savebtn.onclick = () => {
 		saveMidiFile(pattern, patternEvents, settings.playback.tempo, "hello");
 	}
 
@@ -49,7 +49,7 @@ main_fetch = () => {
 	spinal.get('pat.x,set.x').then(res => { 
 		pattern = res['pat.x']
 		settings = res['set.x']
-		console.log('pattern: ', pattern)
+		// console.log('pattern: ', pattern)
 		patternEvents = SpinalCreatePatternEvents(pattern, params)
 		trackSketch.loop()
 	})
