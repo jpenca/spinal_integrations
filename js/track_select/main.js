@@ -23,6 +23,7 @@ class TrackSelect {
 
         this.trackCells = []
         this.buildGrid()
+        this.updateSelectionFromLocalStorage()
 
         this.touchIDs = {}
         
@@ -115,6 +116,7 @@ class TrackSelect {
             if(idx != -1) {
                 trackSelect.tracks[idx] = !trackSelect.tracks[idx]    
                 trackSelect.trackCells[idx].setAttribute('selected', trackSelect.tracks[idx])
+                trackSelect.updateLocalStorage()
                 trackSelect.touchIDs[touch.identifier] = idx
             }
         }
@@ -136,7 +138,7 @@ class TrackSelect {
             if(idx != -1 && prevIdx != idx) {
                 trackSelect.tracks[idx] = !trackSelect.tracks[idx]    
                 trackSelect.trackCells[idx].setAttribute('selected', trackSelect.tracks[idx])
-                console.log(`t id ${ident} trk: ${idx} on: ${trackSelect.tracks[idx]}`)
+                trackSelect.updateLocalStorage()
             }
 
             trackSelect.touchIDs[touch.identifier] = idx
@@ -165,6 +167,21 @@ class TrackSelect {
             this.tracks[idx] = !this.tracks[idx]
             this.trackCells[idx].setAttribute('selected', trackSelect.tracks[idx])
             this.lastSelectedTrack = idx
+            trackSelect.updateLocalStorage()
+        }
+    }
+
+    updateLocalStorage() {
+        localStorage.setItem('selectedtracks', JSON.stringify(this.tracks))
+    }
+
+    updateSelectionFromLocalStorage() {
+        var item = localStorage.getItem('selectedtracks')
+        if(item) {
+            this.tracks = JSON.parse(item)
+            for(var trk = 0; trk < 12; trk ++) {
+                this.trackCells[trk].setAttribute('selected', this.tracks[trk])
+            }
         }
     }
 }
