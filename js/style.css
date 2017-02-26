@@ -67,10 +67,68 @@ label {
 body {
 	align-content: center;
 	background-color: #AAAAAA;
+	margin: 0px;
 }
 
 canvas {
 	border-radius: 4px;
 	box-shadow: 10px 10px 10px #888888;
 	display: flex;
+}
+
+#trackselect {
+	background-color: darkslateblue;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0px;
+}
+
+.trackselecttable {
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	font-size: 48px;
+
+	-webkit-user-select: none;  /* Chrome all / Safari all */
+  	-moz-user-select: none;     /* Firefox all */
+  	-ms-user-select: none;      /* IE 10+ */
+  	user-select: none;          /* Likely future */  
+
+	overflow: hidden;
+	/*margin: 32px;*/
+	padding: 32px;
+
+	/*display: flex;*/
+
+	display: flex;
+	align-items: center;
+	margin: 0px;
+}
+
+.trackselecttrack {
+	
+
+	border-radius: 8px;
+	border:solid 4px lightcoral;
+	color: lightcoral;
+	height: 120px; 
+    width: 120px;
+	text-align:center; 
+    vertical-align:middle;
+	margin: 4px;
+	cursor: pointer;
+
+	/*box-shadow: 10px 10px 10px #888888;*/
+
+	transition-duration: 0.1s;
+	line-height: 110px;
+
+	/*position: relative;*/
+	/*top: 50%;*/
+	/*transform: translateY(-50%);*/
+}
+
+.trackselecttrack[selected="true"] {
+	background-color:lightcoral;
+	border-color: lightcoral;
+	color: darkslateblue;
 }
